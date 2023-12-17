@@ -9,4 +9,4 @@ Fonctionnalités :
 
 Technologies (non exhaustive) :
 - Flutter et plugins
-- Base de données local NoSql
+- Base de données NoSql: MongoDB Atlas
