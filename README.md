@@ -1,16 +1,12 @@
-# flutter_application_1
+Application mobile pour faire le relevé cartographique des bâtiments pour une agence foncière.
 
-A new Flutter project.
+Fonctionnalités :
+- Authentification
+- Rôles (superviseur, agent cartographe)
+- Relevé des polygones pour les constructions
+- Remplissage d’un formulaire (adresse, contact, type de construction, …) pour chaque construction
+- Le superviseur localise (par un point) les constructions à traiter par les agents cartographes en utilisant une image satellitaire.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Technologies (non exhaustive) :
+- Flutter et plugins
+- Base de données local NoSql
