@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/models/Construction.dart';
 import 'package:flutter_application_1/models/User.dart';
 import 'package:flutter_application_1/models/Point.dart';
@@ -23,8 +24,7 @@ class DBHelper {
       _pointCollection ??= _db!.collection('points');
 
   Future<void> initDatabase() async {
-    _db = await Db.create(
-        'mongodb+srv://ighachenayoub:ayoubighachen2001@cluster0.hrjbr8d.mongodb.net/FlutterProject4?retryWrites=true&w=majority');
+    _db = await Db.create(dotenv.env['MONGODB_CONNECTION_STRING']!);
     await _db!.open();
   }
 
