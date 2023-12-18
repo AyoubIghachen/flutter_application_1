@@ -30,6 +30,8 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                Image.asset('assets/images/phone_buildings.png'),
+                SizedBox(height: 2.0),
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
@@ -83,7 +85,12 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         }
                       } else {
-                        // Show an error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Incorrect username or password'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
                       }
                     }
                   },

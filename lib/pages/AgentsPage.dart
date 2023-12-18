@@ -1,30 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/helpers/DBHelper.dart';
+import 'package:flutter_application_1/models/User.dart';
 
 class AgentsPage extends StatelessWidget {
-  final List<String> agents = [
-    'Agent 1',
-    'Agent 2',
-    'Agent 3'
-  ]; // Replace with your list of agents
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Agents'),
       ),
-      body: ListView.builder(
-        itemCount: agents.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(agents[index]),
-            trailing: ElevatedButton(
-              onPressed: () {
-                // Handle the Attribuer button press
+      body: FutureBuilder<List<User>>(
+        future: DBHelper.instance.getAgents(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final agents = snapshot.data!;
+            return ListView.builder(
+              itemCount: agents.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(agents[index].username),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      // Handle the Attribuer button press
+                    },
+                    child: Text('Attribuer'),
+                  ),
+                );
               },
-              child: Text('Attribuer'),
-            ),
-          );
+            );
+          }
         },
       ),
     );

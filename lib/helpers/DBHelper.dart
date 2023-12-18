@@ -60,6 +60,12 @@ class DBHelper {
     collection.remove({'_id': id});
   }
 
+  Future<List<User>> getAgents() async {
+    final collection = await instance.userCollection;
+    final maps = await collection.find({'role': 'agent'}).toList();
+    return maps.map((map) => User.fromMap(map)).toList();
+  }
+
   // CRUD for Constructions
   Future<void> createConstructionOnline(Construction construction) async {
     final collection = await instance.constructionCollection;
