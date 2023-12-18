@@ -25,7 +25,8 @@ class AgentsPage extends StatelessWidget {
                   title: Text(agents[index].username),
                   trailing: ElevatedButton(
                     onPressed: () {
-                      // Handle the Attribuer button press
+                      Navigator.pop(
+                          context, agents[index]); // Return the selected agent
                     },
                     child: Text('Attribuer'),
                   ),
