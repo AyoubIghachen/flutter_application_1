@@ -110,4 +110,10 @@ class DBHelper {
     final collection = await instance.pointCollection;
     collection.remove({'_id': id});
   }
+
+  Future<List<Point>> readPointsOnlineByAgentId(String agentId) async {
+    final collection = await instance.pointCollection;
+    final maps = await collection.find({'idAgent': agentId}).toList();
+    return maps.map((map) => Point.fromMap(map)).toList();
+  }
 }

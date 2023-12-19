@@ -14,18 +14,19 @@ class PageSuperviseur extends StatefulWidget {
 
 class _PageSuperviseurState extends State<PageSuperviseur> {
   List<Marker> markers = []; // Markers created by the supervisor
-  List<Marker> dbMarkers = []; // Markers fetched from the database
+  Future<List<Marker>>?
+      dbMarkersFuture; // Future for markers fetched from the database
   bool createMode = false;
 
   @override
   void initState() {
     super.initState();
-    _loadPoints();
+    dbMarkersFuture = _loadPoints();
   }
 
-  Future<void> _loadPoints() async {
+  Future<List<Marker>> _loadPoints() async {
     final points = await DBHelper.instance.readPointsOnline();
-    dbMarkers = points.map((point) {
+    return points.map((point) {
       final latLngData = jsonDecode(point.jsonData);
       final latLng = LatLng(latLngData['latitude'], latLngData['longitude']);
       return Marker(
@@ -48,24 +49,36 @@ class _PageSuperviseurState extends State<PageSuperviseur> {
       ),
       body: Stack(
         children: [
-          FlutterMap(
-            options: MapOptions(
-              center: LatLng(33.589886, -7.603869), // Set the initial location
-              zoom: 13.0,
-              onTap: createMode ? _handleTap : null,
-            ),
-            layers: [
-              TileLayerOptions(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c']),
-              MarkerLayerOptions(
-                markers: [
-                  ...dbMarkers,
-                  ...markers
-                ], // Combine the two lists of markers
-              ),
-            ],
+          FutureBuilder<List<Marker>>(
+            future: dbMarkersFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return FlutterMap(
+                  options: MapOptions(
+                    center: LatLng(
+                        33.589886, -7.603869), // Set the initial location
+                    zoom: 13.0,
+                    onTap: createMode ? _handleTap : null,
+                  ),
+                  layers: [
+                    TileLayerOptions(
+                        urlTemplate:
+                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c']),
+                    MarkerLayerOptions(
+                      markers: [
+                        ...snapshot.data!,
+                        ...markers
+                      ], // Combine the two lists of markers
+                    ),
+                  ],
+                );
+              }
+            },
           ),
           Positioned(
             bottom: 20,
@@ -91,7 +104,9 @@ class _PageSuperviseurState extends State<PageSuperviseur> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      markers.removeLast();
+                      if (markers.isNotEmpty) {
+                        markers.removeLast();
+                      }
                     });
                   },
                   child: Text('Annuler'),
@@ -116,7 +131,8 @@ class _PageSuperviseurState extends State<PageSuperviseur> {
                       }
                       markers.clear(); // Clear the markers
                       createMode = false; // Stop the creation of points
-                      await _loadPoints(); // Fetch the updated points from the database
+                      dbMarkersFuture =
+                          _loadPoints(); // Fetch the updated points from the database
                       setState(
                           () {}); // Rebuild the widget to reflect the changes
                       ScaffoldMessenger.of(context).showSnackBar(

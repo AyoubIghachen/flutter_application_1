@@ -77,12 +77,15 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         } else if (user.role == 'agent') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AgentPage(),
-                            ),
-                          );
+                          if (user.role == 'agent' && user.id != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AgentPage(agentId: user.id!),
+                              ),
+                            );
+                          }
                         }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
