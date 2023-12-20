@@ -35,7 +35,8 @@ class _PageSuperviseurState extends State<PageSuperviseur> {
         point: latLng,
         builder: (ctx) => Container(
           child: Icon(Icons.location_on,
-              color: Color.fromARGB(255, 5, 33, 248), size: 50.0),
+              color: point.idConstruction == null ? Colors.red : Colors.green,
+              size: 50.0),
         ),
       );
     }).toList();

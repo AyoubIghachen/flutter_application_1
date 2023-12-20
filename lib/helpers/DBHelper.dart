@@ -3,7 +3,7 @@ import 'package:flutter_application_1/models/Construction.dart';
 import 'package:flutter_application_1/models/User.dart';
 import 'package:flutter_application_1/models/Point.dart';
 
-import 'package:mongo_dart/mongo_dart.dart' show Db, DbCollection;
+import 'package:mongo_dart/mongo_dart.dart' show Db, DbCollection, ObjectId;
 
 class DBHelper {
   DBHelper._privateConstructor();
@@ -67,9 +67,10 @@ class DBHelper {
   }
 
   // CRUD for Constructions
+
   Future<void> createConstructionOnline(Construction construction) async {
     final collection = await instance.constructionCollection;
-    collection.insert(construction.toMap());
+    await collection.insert(construction.toMap());
   }
 
   Future<List<Construction>> readConstructionsOnline() async {
@@ -89,6 +90,28 @@ class DBHelper {
     collection.remove({'_id': id});
   }
 
+  Future<String> getConstructionIdByPointId(String idPoint) async {
+    final collection = await instance.constructionCollection;
+    final map = await collection.findOne({'idPoint': idPoint});
+    if (map != null) {
+      final construction = Construction.fromMap(map);
+      if (construction.id != null) {
+        return construction.id!;
+      } else {
+        throw Exception('Construction ID is null for point id: $idPoint');
+      }
+    } else {
+      throw Exception('Construction not found for point id: $idPoint');
+    }
+  }
+
+  Future<List<Construction>> readConstructionsOnlineByAgentId(
+      String agentId) async {
+    final collection = await instance.constructionCollection;
+    final maps = await collection.find({'idAgent': agentId}).toList();
+    return maps.map((map) => Construction.fromMap(map)).toList();
+  }
+
   // CRUD for Points
   Future<void> createPointOnline(Point point) async {
     final collection = await instance.pointCollection;
@@ -102,8 +125,16 @@ class DBHelper {
   }
 
   Future<void> updatePointOnline(String id, Point updatedPoint) async {
+    String subId = id.substring(10, 34);
+    var nid = ObjectId.fromHexString(subId);
     final collection = await instance.pointCollection;
-    collection.update({'_id': id}, updatedPoint.toMap());
+    var idconstruction = updatedPoint.idConstruction;
+    var result = await collection.update({
+      '_id': nid
+    }, {
+      '\$set': {'idConstruction': idconstruction}
+    });
+    print('Update result: $result');
   }
 
   Future<void> deletePointOnline(String id) async {
@@ -115,5 +146,18 @@ class DBHelper {
     final collection = await instance.pointCollection;
     final maps = await collection.find({'idAgent': agentId}).toList();
     return maps.map((map) => Point.fromMap(map)).toList();
+  }
+
+  Future<Point> readPointOnline(String id) async {
+    String subId = id.substring(10, 34);
+    var nid = ObjectId.fromHexString(subId);
+    final collection = await instance.pointCollection;
+    final map = await collection.findOne({'_id': nid});
+    if (map != null) {
+      return Point.fromMap(map);
+    } else {
+      throw Exception('Point not found');
+      // return Point(jsonData: '{}');
+    }
   }
 }
